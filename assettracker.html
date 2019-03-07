@@ -26,6 +26,67 @@
 				padding: 40px 15px;
 				text-align: center;
 			}
+
+			.switch {
+			position: relative;
+			float: left;
+			width: 60px;
+			height: 34px;
+			}
+
+			.switch input { 
+			opacity: 0;
+			width: 0;
+			height: 0;
+			}
+
+			.slider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: #ccc;
+			-webkit-transition: .4s;
+			transition: .4s;
+			}
+
+			.slider:before {
+			position: absolute;
+			content: "";
+			height: 26px;
+			width: 26px;
+			left: 4px;
+			bottom: 4px;
+			background-color: white;
+			-webkit-transition: .4s;
+			transition: .4s;
+			}
+
+			input:checked + .slider {
+			background-color: rgb(163, 0, 0);
+			}
+
+			input:focus + .slider {
+			box-shadow: 0 0 1px rgb(165, 0, 0);
+			}
+
+			input:checked + .slider:before {
+			-webkit-transform: translateX(26px);
+			-ms-transform: translateX(26px);
+			transform: translateX(26px);
+			}
+
+			/* Rounded sliders */
+			.slider.round {
+			border-radius: 34px;
+			}
+
+			.slider.round:before {
+			border-radius: 50%;
+			}
+
 			#map {
 				height: 600px;
 			}
@@ -51,6 +112,12 @@
 				</div>
 				<div id="map"></div>
 				<div id="latlon">Waiting for GPS events...</div>
+				<div id="arm">
+					<label class="switch">
+						<input id="toggle" type="checkbox">
+						<span class="slider round"></span>
+					</label>
+				</div>
 			</div>
 
 		</div><!-- /.container -->
@@ -63,6 +130,31 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 		<script>
 			var map;
+
+			function post(path, params, method) {
+				method = method || "post"; // Set method to post by default if not specified.
+
+				// The rest of this code assumes you are not using a library.
+				// It can be made less wordy if you use one.
+				var form = document.createElement("form");
+				form.setAttribute("method", method);
+				form.setAttribute("action", path);
+
+				for(var key in params) {
+					if(params.hasOwnProperty(key)) {
+						var hiddenField = document.createElement("input");
+						hiddenField.setAttribute("type", "hidden");
+						hiddenField.setAttribute("name", key);
+						hiddenField.setAttribute("value", params[key]);
+
+						form.appendChild(hiddenField);
+					}
+				}
+
+				document.body.appendChild(form);
+				form.submit();
+			}
+			
 			function initMap() {
 				console.log('map init');
 				map = new google.maps.Map(document.getElementById('map'), {
@@ -101,6 +193,29 @@
 						}
 					});
 				});
+
+				$('#toggle').on('click', function() {
+					var form = $('<form></form>');
+
+					form.attr("method", "post");
+					form.attr("action", '/arm');
+
+					parameters = [accessToken, device, deviceName]
+					$.each(parameters, function(key, value) {
+						var field = $('<input></input>');
+						console.log(key + ' : ' + value);
+						field.attr("type", "hidden");
+						field.attr("name", key);
+						field.attr("value", value);
+
+						form.append(field);
+					});
+
+					// The form needs to be a part of the document in
+					// order for us to be able to submit it.
+					$(document.body).append(form);
+					form.submit();
+				})
 
 				function loadDevice() {
 					deviceName = simpleStorage.get("assettracker_deviceName");
@@ -192,7 +307,7 @@
 
 			});
 		</script>
-		<script src="https://maps.googleapis.com/maps/api/js?key={{YOUR_GOOGLE_API_TOKEN}}&callback=initMap" async defer></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key={{key go here}}&callback=initMap" async defer></script>
 
 	</body>
 </html>
