@@ -22,6 +22,13 @@
 			body {
 				padding-top: 50px;
 			}
+			#arm {
+				float:left;
+			}
+			#silence
+			{
+				float: right;
+			}
 			.starter-template {
 				padding: 40px 15px;
 				text-align: center;
@@ -29,7 +36,6 @@
 
 			.switch {
 			position: relative;
-			float: left;
 			width: 60px;
 			height: 34px;
 			}
@@ -64,12 +70,16 @@
 			transition: .4s;
 			}
 
-			input:checked + .slider {
+			input:checked + .red {
 			background-color: rgb(163, 0, 0);
+			}
+			
+			input:checked + .blue {
+			background-color: rgb(0, 35, 190);
 			}
 
 			input:focus + .slider {
-			box-shadow: 0 0 1px rgb(165, 0, 0);
+			box-shadow: 0 0 1px rgb(99, 99, 99);
 			}
 
 			input:checked + .slider:before {
@@ -113,9 +123,17 @@
 				<div id="map"></div>
 				<div id="latlon">Waiting for GPS events...</div>
 				<div id="arm">
+					<h1>Alarm Toggle</h1>
 					<label class="switch">
 						<input id="toggle" type="checkbox">
-						<span class="slider round"></span>
+						<span class="slider round red"></span>
+					</label>
+				</div>
+				<div id="silence">
+					<h1>Silence Toggle</h1>
+					<label class="switch">
+						<input id="toggle" type="checkbox">
+						<span class="slider round blue"></span>
 					</label>
 				</div>
 			</div>
@@ -170,10 +188,13 @@
 				var device;
 				var gpslocation;
 				var markersArray = [];
+				var arm = "off";
 
 				$('#spark-login').hide();
 				$('#deviceChooser').hide();
 				$('#map').hide();
+				$('#arm').hide();
+				$('#silence').hide();
 
 				$('#deviceSelect').on('change', function(){
 					deviceName = $('#deviceSelect').val();
@@ -199,7 +220,7 @@
 
 					form.attr("method", "post");
 					form.attr("action", '/arm');
-
+					
 					parameters = [accessToken, device, deviceName]
 					$.each(parameters, function(key, value) {
 						var field = $('<input></input>');
@@ -271,12 +292,14 @@
 					$('#spark-login').hide();
 					$('#deviceChooser').hide();
 					$('#map').show();
+					$('#arm').show();
+					$('#silence').show();
 
 					spark.getDevice(deviceName, function(err, d) {
 						device = d;
 
 						device.onEvent(false, function(data){
-							if (data.name == "G") {
+							if (data.name == "l") {
 								var gpslocation = data.data.split(',');
 								var lat = parseFloat(gpslocation[0]);
 								var lon = parseFloat(gpslocation[1]);
@@ -307,7 +330,7 @@
 
 			});
 		</script>
-		<script src="https://maps.googleapis.com/maps/api/js?key={{key go here}}&callback=initMap" async defer></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key={{KEY_GOES_HERE}}&callback=initMap" async defer></script>
 
 	</body>
 </html>

@@ -40,7 +40,7 @@ server.listen(port, (err) => {
 })
 
 function particleArm(req) {
-  var fnPr = particle.callFunction({ deviceId: req.body[2], name: 'led', argument: 'on', auth: req.body[0] });
+  var fnPr = particle.callFunction({ deviceId: req.body[2], name: 'armToggle', argument: 'on', auth: req.body[0] });
   
   fnPr.then(
     function(data) {
