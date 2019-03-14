@@ -23,6 +23,19 @@ app.post('/arm', function(req, res) {
   particleArm(req);
 });
 
+app.post('/silence', function(req, res) {
+  console.log(req.body[0]);
+  
+  var fnPr = particle.callFunction({ deviceId: req.body[2], name: 'silenceToggl', argument: req.body[4], auth: req.body[0] });
+  
+  fnPr.then(
+    function(data) {
+      console.log('Function called succesfully:', data);
+    }, function(err) {
+      console.log('An error occurred:', err);
+    });
+});
+
 app.listen(8080);
 const requestHandler = (request, response) => {
   console.log(request.url)
@@ -40,7 +53,7 @@ server.listen(port, (err) => {
 })
 
 function particleArm(req) {
-  var fnPr = particle.callFunction({ deviceId: req.body[2], name: 'armToggle', argument: 'on', auth: req.body[0] });
+  var fnPr = particle.callFunction({ deviceId: req.body[2], name: 'armToggle', argument: req.body[4], auth: req.body[0] });
   
   fnPr.then(
     function(data) {

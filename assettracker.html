@@ -125,14 +125,14 @@
 				<div id="arm">
 					<h1>Alarm Toggle</h1>
 					<label class="switch">
-						<input id="toggle" type="checkbox">
+						<input id="toggleArm" type="checkbox">
 						<span class="slider round red"></span>
 					</label>
 				</div>
 				<div id="silence">
 					<h1>Silence Toggle</h1>
 					<label class="switch">
-						<input id="toggle" type="checkbox">
+						<input id="toggleSil" type="checkbox">
 						<span class="slider round blue"></span>
 					</label>
 				</div>
@@ -147,7 +147,6 @@
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 		<script>
-			var map;
 
 			function post(path, params, method) {
 				method = method || "post"; // Set method to post by default if not specified.
@@ -189,6 +188,7 @@
 				var gpslocation;
 				var markersArray = [];
 				var arm = "off";
+				var silence = "off";
 
 				$('#spark-login').hide();
 				$('#deviceChooser').hide();
@@ -215,12 +215,37 @@
 					});
 				});
 
-				$('#toggle').on('click', function() {
+				$('#toggleArm').on('click', function() {
 					var form = $('<form></form>');
 
 					form.attr("method", "post");
 					form.attr("action", '/arm');
-					
+					arm == "on" ? arm = "off" : arm = "on";
+					parameters = [accessToken, device, deviceName, arm]
+					$.each(parameters, function(key, value) {
+						var field = $('<input></input>');
+						console.log(key + ' : ' + value);
+						field.attr("type", "hidden");
+						field.attr("name", key);
+						field.attr("value", value);
+
+						form.append(field);
+					});
+
+					// The form needs to be a part of the document in
+					// order for us to be able to submit it.
+					$(document.body).append(form);
+					form.submit(function(e){
+                        e.preventDefault();
+				    });
+				})
+
+				$('#toggleSil').on('click', function() {
+					var form = $('<form></form>');
+
+					form.attr("method", "post");
+					form.attr("action", '/silence');
+					silence == "on" ? silence = "off" : silence = "on";
 					parameters = [accessToken, device, deviceName]
 					$.each(parameters, function(key, value) {
 						var field = $('<input></input>');
@@ -235,7 +260,9 @@
 					// The form needs to be a part of the document in
 					// order for us to be able to submit it.
 					$(document.body).append(form);
-					form.submit();
+					form.submit(function(e){
+                        e.preventDefault();
+				    });
 				})
 
 				function loadDevice() {
