@@ -147,31 +147,6 @@
 		<!-- Include all compiled plugins (below), or include individual files as needed -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 		<script>
-
-			function post(path, params, method) {
-				method = method || "post"; // Set method to post by default if not specified.
-
-				// The rest of this code assumes you are not using a library.
-				// It can be made less wordy if you use one.
-				var form = document.createElement("form");
-				form.setAttribute("method", method);
-				form.setAttribute("action", path);
-
-				for(var key in params) {
-					if(params.hasOwnProperty(key)) {
-						var hiddenField = document.createElement("input");
-						hiddenField.setAttribute("type", "hidden");
-						hiddenField.setAttribute("name", key);
-						hiddenField.setAttribute("value", params[key]);
-
-						form.appendChild(hiddenField);
-					}
-				}
-
-				document.body.appendChild(form);
-				form.submit();
-			}
-			
 			function initMap() {
 				console.log('map init');
 				map = new google.maps.Map(document.getElementById('map'), {
@@ -221,7 +196,7 @@
 					form.attr("method", "post");
 					form.attr("action", '/arm');
 					arm == "on" ? arm = "off" : arm = "on";
-					parameters = [accessToken, device, deviceName, arm]
+					parameters = [accessToken, deviceName, arm]
 					$.each(parameters, function(key, value) {
 						var field = $('<input></input>');
 						console.log(key + ' : ' + value);
@@ -231,13 +206,11 @@
 
 						form.append(field);
 					});
-
-					// The form needs to be a part of the document in
-					// order for us to be able to submit it.
 					$(document.body).append(form);
-					form.submit(function(e){
-                        e.preventDefault();
-				    });
+					form.submit();
+					// function(e){
+                    //     e.preventDefault();
+				    // });
 				})
 
 				$('#toggleSil').on('click', function() {
@@ -246,7 +219,7 @@
 					form.attr("method", "post");
 					form.attr("action", '/silence');
 					silence == "on" ? silence = "off" : silence = "on";
-					parameters = [accessToken, device, deviceName]
+					parameters = [accessToken, deviceName, silence]
 					$.each(parameters, function(key, value) {
 						var field = $('<input></input>');
 						console.log(key + ' : ' + value);
@@ -256,13 +229,8 @@
 
 						form.append(field);
 					});
-
-					// The form needs to be a part of the document in
-					// order for us to be able to submit it.
 					$(document.body).append(form);
-					form.submit(function(e){
-                        e.preventDefault();
-				    });
+					form.submit();
 				})
 
 				function loadDevice() {
@@ -323,10 +291,57 @@
 					$('#silence').show();
 
 					spark.getDevice(deviceName, function(err, d) {
-						device = d;
+						var form = $('<form></form>');
+						form.attr("method", "post");
+						form.attr("action", '/stream');
+						parameters = [accessToken, deviceName]
+						$.each(parameters, function(key, value) {
+							var field = $('<input></input>');
+							console.log(key + ' : ' + value);
+							field.attr("type", "hidden");
+							field.attr("name", key);
+							field.attr("value", value);
+							form.append(field);
+						});
+						$(document.body).append(form);
+						form.submit();
 
+						$.ajax({
+							url: '/positions',
+							method: 'GET',
+							complete: function(data) {
+								console.log(data);
+								positionsJson = data.responseJSON;
+								for (var i = 0; i < positionsJson.length; i++) {
+									console.log(positionsJson[i]);
+									var gpslocation = positionsJson[i].data.split(',');
+									var lat = parseFloat(gpslocation[0]);
+									var lon = parseFloat(gpslocation[1]);
+
+									var mylocation=new google.maps.LatLng(lat, lon);
+									marker = new google.maps.Marker({
+										position: mylocation,
+										draggable: false,
+										title: positionsJson[i].published_at,					
+										icon: 
+										{
+											path: google.maps.SymbolPath.CIRCLE,
+											fillColor: '#00F',
+											fillOpacity: 0.6,
+											strokeColor: '#00A',
+											strokeOpacity: 0.9,
+											strokeWeight: 1,
+											scale: 7
+										}
+									});
+									markersArray.push(marker);
+									marker.setMap(map);
+								}
+							}
+						});
+						device = d;
 						device.onEvent(false, function(data){
-							if (data.name == "l") {
+							if (data.name == "g") {
 								var gpslocation = data.data.split(',');
 								var lat = parseFloat(gpslocation[0]);
 								var lon = parseFloat(gpslocation[1]);
@@ -339,11 +354,24 @@
 
 								marker = new google.maps.Marker({
 									position: mylocation,
-									draggable: false,
+									draggable: false,					
+									icon: 
+									{
+										path: google.maps.SymbolPath.CIRCLE,
+										fillColor: '#FF0',
+										fillOpacity: 0.6,
+										strokeColor: '#00A',
+										strokeOpacity: 0.9,
+										strokeWeight: 1,
+										scale: 7
+									}
 								});
-
+								console.log(marker);
+								for (var i = 0; i < markersArray.length; i++) {
+									console.log(markersArray[i].icon.fillColor);
+									// markersArray[i].setMap(map);
+								}
 								markersArray.push(marker);
-
 								marker.setMap(map);
 								map.panTo(marker.getPosition());
 							}
@@ -357,7 +385,7 @@
 
 			});
 		</script>
-		<script src="https://maps.googleapis.com/maps/api/js?key={{KEY_GOES_HERE}}&callback=initMap" async defer></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key={{Key_Go_Here}}&callback=initMap" async defer></script>
 
 	</body>
 </html>

@@ -4,7 +4,10 @@
   "description": "A simple web page to subscribe to electron asset tracker events and show them on a google map.",
   "main": "index.js",
   "dependencies": {
-    "express": "^3.21.2",
+    "express": "^4.16.4",
+    "mongodb": "^3.2.2",
+    "mongoose": "^5.4.20",
+    "nodemon": "^1.18.10",
     "particle-api-js": "^7.4.0"
   },
   "devDependencies": {},
