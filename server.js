@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 
 // viewed at http://localhost:8080
 app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname + '/assettracker.html'));
+  res.sendFile(path.join(__dirname + '/assettracker.html'));
 });
 
 app.listen(8080);
@@ -63,7 +63,7 @@ app.post('/stream', function(req, res) {
 
 app.post('/arm', function(req, res) {
   console.log(req.body);
-  var fnPr = particle.callFunction({ deviceId: req.body[1], name: 'armToggl', argument: req.body[3], auth: req.body[0] });
+  var fnPr = particle.callFunction({ deviceId: req.body[1], name: 'armToggl', argument: req.body[2], auth: req.body[0] });
   
   fnPr.then(
     function(data) {
@@ -76,7 +76,7 @@ app.post('/arm', function(req, res) {
 app.post('/silence', function(req, res) {
   console.log(req.body);
   
-  var fnPr = particle.callFunction({ deviceId: req.body[1], name: 'silenceToggl', argument: req.body[3], auth: req.body[0] });
+  var fnPr = particle.callFunction({ deviceId: req.body[1], name: 'silenceToggl', argument: req.body[2], auth: req.body[0] });
   
   fnPr.then(
     function(data) {

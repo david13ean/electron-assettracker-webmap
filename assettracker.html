@@ -197,7 +197,7 @@
 					form.attr("action", '/arm');
 					form.attr("target", 'dummyframe');
 					arm == "on" ? arm = "off" : arm = "on";
-					parameters = [accessToken, device.id, arm]
+					parameters = [accessToken, deviceName, arm]
 					$.each(parameters, function(key, value) {
 						var field = $('<input></input>');
 						console.log(key + ' : ' + value);
@@ -296,7 +296,7 @@
 						var form = $('<form></form>');
 						form.attr("method", "post");
 						form.attr("action", '/stream');
-						// form.attr("target", 'dummyframe');
+						form.attr("target", 'dummyframe');
 						parameters = [accessToken, deviceName]
 						$.each(parameters, function(key, value) {
 							var field = $('<input></input>');
@@ -323,7 +323,12 @@
 										var gpslocation = positionsJson[i].data.split(',');
 										var lat = parseFloat(gpslocation[1]);
 										var lon = parseFloat(gpslocation[2]);
-										positionsJson.length - i < 15 ? mcolor = '#F00' : mcolor = '#00F';
+										if (positionsJson.length - i < 2) {
+											mcolor = '#F00';
+											$("#toggleArm").prop("checked",gpslocation[0]);
+										} else {
+											mcolor = '#00F';
+										}
 	
 										var mylocation=new google.maps.LatLng(lat, lon);
 										marker = new google.maps.Marker({
@@ -334,7 +339,7 @@
 											{
 												path: google.maps.SymbolPath.CIRCLE,
 												fillColor: mcolor,
-												fillOpacity: 0.6,
+												fillOpacity: 1,
 												strokeColor: '#00A',
 												strokeOpacity: 0.9,
 												strokeWeight: 1,
