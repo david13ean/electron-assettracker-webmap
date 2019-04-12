@@ -17,7 +17,7 @@
 			<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
 			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 		<![endif]-->
-
+		<iframe width="0" height="0" border="0" name="dummyframe" id="dummyframe"></iframe>
 		<style type="text/css">
 			body {
 				padding-top: 50px;
@@ -192,11 +192,12 @@
 
 				$('#toggleArm').on('click', function() {
 					var form = $('<form></form>');
-
+					console.log(device);
 					form.attr("method", "post");
 					form.attr("action", '/arm');
+					form.attr("target", 'dummyframe');
 					arm == "on" ? arm = "off" : arm = "on";
-					parameters = [accessToken, deviceName, arm]
+					parameters = [accessToken, device.id, arm]
 					$.each(parameters, function(key, value) {
 						var field = $('<input></input>');
 						console.log(key + ' : ' + value);
@@ -218,6 +219,7 @@
 
 					form.attr("method", "post");
 					form.attr("action", '/silence');
+					form.attr("target", 'dummyframe');
 					silence == "on" ? silence = "off" : silence = "on";
 					parameters = [accessToken, deviceName, silence]
 					$.each(parameters, function(key, value) {
@@ -294,6 +296,7 @@
 						var form = $('<form></form>');
 						form.attr("method", "post");
 						form.attr("action", '/stream');
+						// form.attr("target", 'dummyframe');
 						parameters = [accessToken, deviceName]
 						$.each(parameters, function(key, value) {
 							var field = $('<input></input>');
@@ -306,78 +309,43 @@
 						$(document.body).append(form);
 						form.submit();
 
-						$.ajax({
-							url: '/positions',
-							method: 'GET',
-							complete: function(data) {
-								console.log(data);
-								positionsJson = data.responseJSON;
-								for (var i = 0; i < positionsJson.length; i++) {
-									console.log(positionsJson[i]);
-									var gpslocation = positionsJson[i].data.split(',');
-									var lat = parseFloat(gpslocation[0]);
-									var lon = parseFloat(gpslocation[1]);
 
-									var mylocation=new google.maps.LatLng(lat, lon);
-									marker = new google.maps.Marker({
-										position: mylocation,
-										draggable: false,
-										title: positionsJson[i].published_at,					
-										icon: 
-										{
-											path: google.maps.SymbolPath.CIRCLE,
-											fillColor: '#00F',
-											fillOpacity: 0.6,
-											strokeColor: '#00A',
-											strokeOpacity: 0.9,
-											strokeWeight: 1,
-											scale: 7
-										}
-									});
-									markersArray.push(marker);
-									marker.setMap(map);
-								}
-							}
-						});
-						device = d;
-						device.onEvent(false, function(data){
-							if (data.name == "g") {
-								var gpslocation = data.data.split(',');
-								var lat = parseFloat(gpslocation[0]);
-								var lon = parseFloat(gpslocation[1]);
-
-								var mylocation=new google.maps.LatLng(lat, lon);
-
-								$('#latlon').html(gpslocation[0] + ' : ' + gpslocation[1]);
-
-								// clearMarkers();
-
-								marker = new google.maps.Marker({
-									position: mylocation,
-									draggable: false,					
-									icon: 
-									{
-										path: google.maps.SymbolPath.CIRCLE,
-										fillColor: '#FF0',
-										fillOpacity: 0.6,
-										strokeColor: '#00A',
-										strokeOpacity: 0.9,
-										strokeWeight: 1,
-										scale: 7
+						function fn60sec() {
+							$.ajax({
+								url: '/positions',
+								method: 'GET',
+								complete: function(data) {
+									positionsJson = data.responseJSON;
+									for (var i = 0; i < positionsJson.length; i++) {
+										var gpslocation = positionsJson[i].data.split(',');
+										var lat = parseFloat(gpslocation[1]);
+										var lon = parseFloat(gpslocation[2]);
+	
+										var mylocation=new google.maps.LatLng(lat, lon);
+										marker = new google.maps.Marker({
+											position: mylocation,
+											draggable: false,
+											title: positionsJson[i].published_at,					
+											icon: 
+											{
+												path: google.maps.SymbolPath.CIRCLE,
+												fillColor: '#00F',
+												fillOpacity: 0.6,
+												strokeColor: '#00A',
+												strokeOpacity: 0.9,
+												strokeWeight: 1,
+												scale: 7
+											}
+										});
+										markersArray.push(marker);
+										marker.setMap(map);
 									}
-								});
-								console.log(marker);
-								for (var i = 0; i < markersArray.length; i++) {
-									console.log(markersArray[i].icon.fillColor);
-									// markersArray[i].setMap(map);
 								}
-								markersArray.push(marker);
-								marker.setMap(map);
-								map.panTo(marker.getPosition());
-							}
-
-							console.log(data);
-						});
+							});
+							// runs every 60 sec and runs on init.
+						}
+						fn60sec();
+						setInterval(fn60sec, 60*1000);
 					});
 				}
 
@@ -385,7 +353,7 @@
 
 			});
 		</script>
-		<script src="https://maps.googleapis.com/maps/api/js?key={{Key_Go_Here}}&callback=initMap" async defer></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDgGO2D-zibBJsmtKtB3IOHBlXPlw5D9K8&callback=initMap" async defer></script>
 
 	</body>
 </html>

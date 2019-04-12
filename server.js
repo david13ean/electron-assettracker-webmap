@@ -44,7 +44,7 @@ server.listen(port, (err) => {
 app.get('/positions', function(req, res, next) {
   GPModel.find(function (err, positions) {
     if (err) return console.error(err);
-    console.log(positions);
+    // console.log(positions);
     res.send(positions);
   });
 });
@@ -62,7 +62,7 @@ app.post('/stream', function(req, res) {
 });
 
 app.post('/arm', function(req, res) {
-  console.log(req.body[0]);
+  console.log(req.body);
   var fnPr = particle.callFunction({ deviceId: req.body[1], name: 'armToggl', argument: req.body[3], auth: req.body[0] });
   
   fnPr.then(
@@ -74,7 +74,7 @@ app.post('/arm', function(req, res) {
 });
 
 app.post('/silence', function(req, res) {
-  console.log(req.body[0]);
+  console.log(req.body);
   
   var fnPr = particle.callFunction({ deviceId: req.body[1], name: 'silenceToggl', argument: req.body[3], auth: req.body[0] });
   
