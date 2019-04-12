@@ -309,8 +309,11 @@
 						$(document.body).append(form);
 						form.submit();
 
-
 						function fn60sec() {
+							for (var i = 0; i < markersArray.length; i++ ) {
+								markersArray[i].setMap(null);
+							}
+							markersArray.length = 0;
 							$.ajax({
 								url: '/positions',
 								method: 'GET',
@@ -320,6 +323,7 @@
 										var gpslocation = positionsJson[i].data.split(',');
 										var lat = parseFloat(gpslocation[1]);
 										var lon = parseFloat(gpslocation[2]);
+										positionsJson.length - i < 15 ? mcolor = '#F00' : mcolor = '#00F';
 	
 										var mylocation=new google.maps.LatLng(lat, lon);
 										marker = new google.maps.Marker({
@@ -329,7 +333,7 @@
 											icon: 
 											{
 												path: google.maps.SymbolPath.CIRCLE,
-												fillColor: '#00F',
+												fillColor: mcolor,
 												fillOpacity: 0.6,
 												strokeColor: '#00A',
 												strokeOpacity: 0.9,
@@ -337,12 +341,14 @@
 												scale: 7
 											}
 										});
+										console.log(marker.icon.fillColor);
 										markersArray.push(marker);
 										marker.setMap(map);
+										
+										if (positionsJson.length - i === 1) map.panTo(marker.getPosition());
 									}
 								}
 							});
-							// runs every 60 sec and runs on init.
 						}
 						fn60sec();
 						setInterval(fn60sec, 60*1000);
