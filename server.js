@@ -44,7 +44,7 @@ server.listen(port, (err) => {
 app.get('/positions', function(req, res, next) {
   GPModel.find(function (err, positions) {
     if (err) return console.error(err);
-    console.log(positions);
+    // console.log(positions);
     res.send(positions);
   });
 });
